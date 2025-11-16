@@ -35,3 +35,41 @@ The agent calls the tools, reads their JSON outputs (including precomputed durat
 │   └── test_live_services.py # Optional live tests hitting public APIs
 ├── demo_notebook.ipynb       # Colab-style demo notebook (optional)
 └── requirements.txt
+```
+## Configuration
+
+1. OpenAI API Key
+   Set your OpenAI API key so the agent can run:
+   ```bash
+   export OPENAI_API_KEY="sk-..."
+   ```
+2. Nominatim (Geocoding & POI server)
+   By default, the project uses the public Nominatim instance at:
+   ```text
+   https://nominatim.openstreetmap.org
+   ```
+   Nominatim’s usage policy requires that clients:
+   - Use a custom User-Agent that clearly identifies your application (not the default from your HTTP library).
+   - Keep requests to a low rate (roughly 1 request per second or less) on the public instance.
+   - Provide proper attribution to OpenStreetMap where results are used.
+  In this project, these details are configured via GeocodingServerParams in map_servers/params.py:
+   - base_url – the Nominatim endpoint.
+   - user_agent – the custom User-Agent string.
+   - timeout – HTTP timeout for requests.
+   If you want to use this beyond a small demo, consider:
+   - Reducing request frequency and adding caching.
+   - Running your own Nominatim instance for higher-volume workloads.
+3. OSRM (Routing server)
+   The routing server uses an OSRM HTTP endpoint, also configured in map_servers/params.py via RoutingServerParams:
+   - base_url – the OSRM server URL (for example, a public demo server or your own instance).
+   - profile – routing profile (e.g. "driving").
+   - timeout – HTTP timeout for OSRM requests.
+   According to the OSRM HTTP API documentation:
+   - distance values are returned in meters.
+   - duration values are returned in seconds.
+   In this project, routing_server.py:
+   - Keeps OSRM’s raw units (meters and seconds).
+   - Adds convenience fields: duration_min for single routes and durations_min for the distance matrix.
+   You can point RoutingServerParams.base_url to:
+   - A public OSRM demo server (suitable only for very light testing), or
+   - Your own OSRM instance (recommended if you need reliability, custom data, or higher request volume). 
